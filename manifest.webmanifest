@@ -1,0 +1,31 @@
+{
+  "name": "Dreams to Done \u2014 Goal & Resolution Planner",
+  "short_name": "Goal Planner",
+  "description": "Reflect on the year, set goals you'll actually keep, and track them all year long \u2014 an interactive planner that needs no app and no account.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f4ef",
+  "theme_color": "#7c6bd6",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

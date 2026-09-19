@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dreams to Done — Goal &amp; Resolution Planner</title>
+<style>
+  :root{
+    --bg:#f6f4ef;
+    --panel:#ffffff;
+    --ink:#2b2a33;
+    --muted:#7a7686;
+    --line:#e7e3da;
+    --accent:#7c6bd6;      /* dreamy violet */
+    --accent-2:#e79bb4;     /* soft rose */
+    --accent-3:#6fb4a8;     /* calm teal */
+    --gold:#e0a94a;
+    --good:#5aa06f;
+    --shadow:0 8px 30px rgba(60,50,90,.10);
+    --radius:16px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#1b1a21; --panel:#24222c; --ink:#efecf5; --muted:#a6a1b4;
+      --line:#332f3d; --shadow:0 8px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1b1a21; --panel:#24222c; --ink:#efecf5; --muted:#a6a1b4;
+    --line:#332f3d; --shadow:0 8px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  button,input,textarea,label,.hcell,.goal-check,.tab,.swatch{touch-action:manipulation}
+  button,.goal-check,.hcell,.tab{-webkit-tap-highlight-color:rgba(124,107,214,.15)}
+  body{
+    background:
+      radial-gradient(1200px 500px at 100% -10%, rgba(124,107,214,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 0%, rgba(231,155,180,.10), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--font);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 16px 80px}
+
+  /* Header */
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{
+    width:44px;height:44px;border-radius:13px;flex:none;
+    background:linear-gradient(140deg,var(--accent),var(--accent-2));
+    display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:var(--shadow)
+  }
+  .brand h1{font-size:15px;margin:0;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+  .brand small{display:block;color:var(--muted);letter-spacing:.02em;text-transform:none;font-weight:500;font-size:12px;margin-top:2px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+  button.btn{
+    font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:8px 12px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px
+  }
+  button.btn:hover{border-color:var(--accent);color:var(--accent)}
+  button.btn.primary{background:linear-gradient(140deg,var(--accent),#8f7fe0);color:#fff;border:none}
+  button.btn.primary:hover{filter:brightness(1.05);color:#fff}
+
+  /* Tabs / views */
+  .tabs{position:sticky;top:8px;z-index:20;display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:6px;margin:16px 0 8px;box-shadow:var(--shadow)}
+  .tab{flex:1;border:none;background:transparent;cursor:pointer;font-family:inherit;color:var(--muted);
+    padding:11px 8px;border-radius:10px;font-weight:700;font-size:14px;line-height:1.15;
+    display:flex;flex-direction:column;align-items:center;gap:3px;transition:.15s}
+  .tab .tlab{display:flex;align-items:center;gap:7px}
+  .tab small{font-weight:600;font-size:11.5px;letter-spacing:.08em;opacity:.85}
+  .tab:not(.active):hover{color:var(--accent);background:var(--bg)}
+  .tab.active{background:linear-gradient(140deg,var(--accent),#8f7fe0);color:#fff;box-shadow:0 6px 18px rgba(124,107,214,.34)}
+  .tab.active small{opacity:.92}
+  .view{display:none}
+  .view.show{display:block;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .view-next{margin:22px 2px 2px;display:flex;justify-content:flex-end}
+  @media(max-width:520px){
+    .tab{font-size:13px;padding:10px 6px}
+    .tab small{font-size:11px}
+    .view-next{justify-content:center}
+    .view-next .btn{width:100%;justify-content:center}
+  }
+
+  /* Hero card */
+  .hero{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:26px;margin:18px 0 22px;position:relative;overflow:hidden
+  }
+  .hero:before{content:"";position:absolute;inset:0;background:
+    radial-gradient(500px 200px at 90% -40%, rgba(124,107,214,.14), transparent 70%);pointer-events:none}
+  .hero-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:26px;position:relative}
+  @media(max-width:720px){.hero-grid{grid-template-columns:1fr}}
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .year-line{display:flex;align-items:baseline;gap:10px;margin:6px 0 2px}
+  .year-line .yr{font-family:var(--serif);font-size:52px;font-weight:700;line-height:1;
+    border:none;background:transparent;color:var(--ink);width:150px;padding:0}
+  .year-line .ttl{font-family:var(--serif);font-size:30px;color:var(--muted)}
+  .woty label{font-size:12px;color:var(--muted);font-weight:600}
+  .woty input{
+    width:100%;font-family:var(--serif);font-size:24px;color:var(--accent);font-weight:700;
+    border:none;border-bottom:2px dashed var(--line);background:transparent;padding:6px 2px;margin-top:2px
+  }
+  .woty input:focus{outline:none;border-bottom-color:var(--accent)}
+  .intention{width:100%;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:transparent;
+    color:var(--ink);font-family:inherit;font-size:14px;padding:10px 12px;resize:vertical;min-height:62px}
+  .intention:focus{outline:none;border-color:var(--accent)}
+
+  /* Progress ring */
+  .ring-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+  .ring{position:relative;width:170px;height:170px}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pct{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+  .ring .pct b{font-size:38px;font-family:var(--serif)}
+  .ring .pct span{display:block;font-size:12px;color:var(--muted);letter-spacing:.04em}
+  .stat-row{display:flex;gap:18px}
+  .stat{text-align:center}
+  .stat b{font-size:22px;font-family:var(--serif);display:block}
+  .stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+  /* Section heads */
+  .section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:30px 4px 12px}
+  .section-head h2{font-family:var(--serif);font-size:24px;margin:0;font-weight:700}
+  .section-head p{margin:2px 0 0;color:var(--muted);font-size:13px}
+
+  /* Areas / goals */
+  .area{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
+  .area-head{display:flex;align-items:center;gap:12px;padding:16px 18px;cursor:pointer;user-select:none}
+  .area-emoji{font-size:22px}
+  .area-title{font-weight:700;font-size:16px;flex:1;border:none;background:transparent;color:var(--ink);font-family:inherit}
+  .area-title:focus{outline:none}
+  .area-meta{font-size:12px;color:var(--muted);white-space:nowrap}
+  .area-bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;width:90px;flex:none}
+  .area-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-3),var(--accent));border-radius:6px;transition:width .3s}
+  .chev{transition:.2s;color:var(--muted);font-size:13px}
+  .area.collapsed .chev{transform:rotate(-90deg)}
+  .area.collapsed .goals{display:none}
+  .goals{padding:0 18px 8px}
+
+  .goal{border-top:1px solid var(--line);padding:14px 0}
+  .goal-top{display:flex;align-items:flex-start;gap:10px}
+  .goal-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:1px;cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .goal-check.done{background:var(--good);border-color:var(--good);color:#fff}
+  .goal-main{flex:1;min-width:0}
+  .goal-name{font-weight:600;font-size:15px;border:none;background:transparent;color:var(--ink);font-family:inherit;width:100%;padding:0}
+  .goal-name:focus{outline:none}
+  .goal.done .goal-name{text-decoration:line-through;color:var(--muted)}
+  .goal-sub{display:flex;gap:14px;flex-wrap:wrap;margin-top:5px;align-items:center}
+  .goal-why{font-size:13px;color:var(--muted);font-style:italic;border:none;background:transparent;font-family:inherit;flex:1;min-width:140px;padding:0}
+  .goal-why:focus{outline:none;color:var(--ink)}
+  .goal-date{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
+  .goal-date input{border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--ink);font-family:inherit;font-size:12px;padding:3px 6px}
+  .goal-del{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;border-radius:6px}
+  .goal-del:hover{color:var(--accent-2);background:var(--line)}
+
+  .milestones{margin:10px 0 2px 32px;display:flex;flex-direction:column;gap:6px}
+  .ms{display:flex;align-items:center;gap:8px}
+  .ms input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex:none}
+  .ms input[type=text]{flex:1;border:none;border-bottom:1px solid transparent;background:transparent;color:var(--ink);font-family:inherit;font-size:13px;padding:2px 0}
+  .ms input[type=text]:focus{outline:none;border-bottom-color:var(--line)}
+  .ms.done input[type=text]{text-decoration:line-through;color:var(--muted)}
+  .ms .x{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;opacity:.5}
+  .ms .x:hover{opacity:1;color:var(--accent-2)}
+  .add-ms,.add-goal{font-size:12.5px;color:var(--accent);background:transparent;border:none;cursor:pointer;font-family:inherit;font-weight:600;padding:6px 0}
+  .add-ms{margin:4px 0 2px 32px}
+  .add-goal{margin:4px 0 12px;display:inline-flex;align-items:center;gap:5px}
+  .add-area{display:block;width:100%;padding:12px;border:1.5px dashed var(--line);border-radius:var(--radius);
+    background:transparent;color:var(--muted);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  .add-area:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* Vision board */
+  .vision{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .vcard{border-radius:14px;padding:16px 14px;min-height:120px;display:flex;flex-direction:column;gap:8px;
+    box-shadow:var(--shadow);position:relative;color:#2b2a33;border:1px solid rgba(0,0,0,.05)}
+  .vcard .vemoji{font-size:30px;border:none;background:transparent;width:44px;text-align:center;padding:0}
+  .vcard .vtext{border:none;background:transparent;font-family:inherit;font-weight:600;font-size:14px;resize:none;flex:1;color:inherit}
+  .vcard .vtext:focus,.vcard .vemoji:focus{outline:none}
+  .vcard .vx{position:absolute;top:6px;right:8px;border:none;background:transparent;cursor:pointer;color:rgba(0,0,0,.35);font-size:15px}
+  .vcard .vx:hover{color:#c0455f}
+  .add-vcard{border:1.5px dashed var(--line);border-radius:14px;min-height:120px;display:grid;place-items:center;
+    background:transparent;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  .add-vcard:hover{border-color:var(--accent);color:var(--accent)}
+
+  footer{margin-top:36px;text-align:center;color:var(--muted);font-size:12px;line-height:1.7}
+  footer a{color:var(--accent);text-decoration:none}
+  .hint{background:var(--panel);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;color:var(--muted);font-size:13px;margin-bottom:18px}
+
+  /* Reflect — year in review */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+  .reflect-top{display:flex;align-items:flex-end;gap:26px;flex-wrap:wrap;margin-bottom:18px}
+  .rrate-label,.rword label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.02em}
+  .stars{display:flex;gap:5px}
+  .stars button{border:none;background:transparent;cursor:pointer;font-size:26px;line-height:1;color:var(--line);padding:0;transition:.12s}
+  .stars button.on{color:var(--gold)}
+  .stars button:hover{transform:scale(1.15)}
+  .rword{display:flex;flex-direction:column}
+  .rword input{font-family:var(--serif);font-size:22px;color:var(--accent-3);font-weight:700;border:none;
+    border-bottom:2px dashed var(--line);background:transparent;padding:4px 2px;max-width:230px}
+  .rword input:focus{outline:none;border-bottom-color:var(--accent-3)}
+  .reflect-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.reflect-grid{grid-template-columns:1fr}.reflect-top{gap:16px}}
+  .rfield label{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:6px}
+  .rfield textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);
+    font-family:inherit;font-size:14px;line-height:1.5;padding:10px 12px;resize:vertical;min-height:74px}
+  .rfield textarea:focus{outline:none;border-color:var(--accent)}
+
+  /* Wheel of life */
+  .wheel-grid2{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:center}
+  @media(max-width:680px){.wheel-grid2{grid-template-columns:1fr;justify-items:center}}
+  .wheel-radar{width:300px;height:300px;flex:none}
+  .wheel-sliders{width:100%;display:flex;flex-direction:column;gap:13px}
+  .wrow{display:flex;align-items:center;gap:10px}
+  .wrow .we{font-size:18px;width:24px;text-align:center;flex:none}
+  .wrow .wn{font-size:13px;font-weight:600;color:var(--ink);flex:none;width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  @media(max-width:680px){.wrow .wn{width:34vw;max-width:150px}}
+  .wrow input[type=range]{flex:1;accent-color:var(--accent);cursor:pointer;min-width:70px;height:4px}
+  .wrow .wv{font-family:var(--serif);font-weight:700;font-size:16px;width:22px;text-align:right;color:var(--accent)}
+  .wheel-foot{margin-top:18px;padding-top:15px;border-top:1px solid var(--line);display:flex;gap:26px;flex-wrap:wrap;align-items:baseline}
+  .wheel-foot .wbig{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink)}
+  .wheel-foot .wlab{font-size:12.5px;color:var(--muted)}
+  .wheel-ring{fill:none;stroke:var(--line);stroke-width:1}
+  .wheel-axis{stroke:var(--line);stroke-width:1}
+  .wheel-poly{fill:rgba(124,107,214,.22);stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+  .wheel-dot{fill:var(--accent)}
+  .wheel-lbl{font-size:10px;font-weight:600;fill:var(--muted)}
+  .wheel-hint{fill:var(--muted);font-size:12px}
+
+  /* Habit tracker */
+  .habit-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .habit-grid{border-collapse:collapse;min-width:520px;width:100%}
+  .habit-grid th,.habit-grid td{padding:6px 3px;text-align:center}
+  .habit-grid thead th{font-size:11px;color:var(--muted);font-weight:700}
+  .habit-grid thead th.hname{text-align:left}
+  .hname-cell{display:flex;align-items:center;gap:6px;width:150px}
+  .hname-cell input{border:none;background:transparent;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--ink);width:100%;padding:2px 0;border-bottom:1px solid transparent}
+  .hname-cell input:focus{outline:none;border-bottom-color:var(--line)}
+  .habit-del{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;opacity:.5;padding:0 2px;flex:none}
+  .habit-del:hover{opacity:1;color:var(--accent-2)}
+  .hcell{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--line);cursor:pointer;margin:0 auto;
+    display:grid;place-items:center;color:#fff;font-size:13px;transition:.12s}
+  .hcell.on{background:var(--accent-3);border-color:var(--accent-3)}
+  .hcell:hover{border-color:var(--accent-3)}
+  .hcount{font-family:var(--serif);font-weight:700;font-size:13px;color:var(--accent-3)}
+  .add-habit{font-size:12.5px;color:var(--accent);background:transparent;border:none;cursor:pointer;font-family:inherit;font-weight:600;padding:12px 2px 2px}
+  .add-habit:hover{text-decoration:underline}
+  .habit-hint{display:none;font-size:11.5px;color:var(--muted);margin-top:10px}
+  @media(max-width:680px){.habit-hint{display:block}}
+
+  /* Quarterly check-ins */
+  .q-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.q-grid{grid-template-columns:1fr}}
+  .qcard{border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .qcard h3{margin:0;font-family:var(--serif);font-size:18px;font-weight:700}
+  .qcard .qmon{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin:1px 0 8px}
+  .qfield{margin-top:8px}
+  .qfield label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+  .qfield textarea{width:100%;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);
+    font-family:inherit;font-size:13.5px;line-height:1.5;padding:8px 10px;resize:vertical;min-height:54px}
+  .qfield textarea:focus{outline:none;border-color:var(--accent)}
+
+  /* Prevent iOS Safari auto-zoom on input focus (any field under 16px) */
+  @media(max-width:640px){
+    .goal-name,.goal-why,.goal-date input,.ms input[type=text],.intention,
+    .rfield textarea,.qfield textarea,.hname-cell input,.area-title,.woty input{font-size:16px}
+  }
+
+  @media print{
+    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .toolbar,.tabs,.view-next,.add-area,.add-goal,.add-ms,.add-vcard,.add-habit,.habit-hint,.goal-del,.habit-del,.ms .x,.vcard .vx,.hint,footer .noprint{display:none!important}
+    .wrow input[type=range]{display:none!important}
+    .view{display:block!important;animation:none}
+    #viewPlan{break-before:page}
+    .section-head{break-after:avoid}
+    .hero,.area,.vcard,.card,.qcard{box-shadow:none;border-color:#ddd;break-inside:avoid}
+    .area.collapsed .goals{display:block}
+    .habit-wrap{overflow:visible}
+    .habit-grid{min-width:0}
+  }
+</style>
+
+  <meta name="description" content="Reflect on the year, set goals you'll actually keep, and track them all year long — an interactive planner that needs no app and no account.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#f6f4ef" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b1a21" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="./favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Goal Planner">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo">✦</div>
+      <div>
+        <h1>Dreams&nbsp;to&nbsp;Done</h1>
+        <small>Goal &amp; Resolution Planner — everything saves automatically</small>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button class="btn" id="themeBtn" title="Toggle light/dark">◐ Theme</button>
+      <button class="btn" id="printBtn">⎙ Print / PDF</button>
+      <button class="btn" id="exportBtn">↓ Backup</button>
+      <button class="btn" id="importBtn">↑ Restore</button>
+      <button class="btn" id="resetBtn">↺ Reset</button>
+      <input type="file" id="importFile" accept="application/json" hidden>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tabReflect" role="tab" aria-selected="false">
+      <span class="tlab">↩ Look back</span>
+      <small id="tabReflectYr">2026</small>
+    </button>
+    <button class="tab active" id="tabPlan" role="tab" aria-selected="true">
+      <span class="tlab">Plan forward ➜</span>
+      <small id="tabPlanYr">2027</small>
+    </button>
+  </div>
+
+  <section id="viewReflect" class="view">
+    <div class="section-head">
+      <div><h2 id="reflectHead">Look back — a year in review</h2><p>Close out the year that's ending before you plan the new one. Every field here is optional.</p></div>
+    </div>
+    <div class="card" id="reflect"></div>
+
+    <div class="section-head">
+      <div><h2>Wheel of Life</h2><p>Rate each area of your life today — see where you're thriving, and where you'd like to grow in the year ahead.</p></div>
+    </div>
+    <div class="card" id="wheel"></div>
+
+    <div class="view-next">
+      <button class="btn primary" id="toPlan">Plan 2027 →</button>
+    </div>
+  </section>
+
+  <section id="viewPlan" class="view show">
+  <div class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">My year of intention</div>
+        <div class="year-line">
+          <input class="yr" id="year" maxlength="4" inputmode="numeric">
+          <span class="ttl">goals</span>
+        </div>
+        <div class="woty">
+          <label>My word of the year</label>
+          <input id="woty" placeholder="e.g. Momentum" maxlength="24">
+        </div>
+        <textarea class="intention" id="intention" placeholder="This year I want to feel… / By December I will have…"></textarea>
+      </div>
+      <div class="ring-wrap">
+        <div class="ring">
+          <svg width="170" height="170" viewBox="0 0 170 170">
+            <circle cx="85" cy="85" r="72" fill="none" stroke="var(--line)" stroke-width="14"/>
+            <circle id="ringFill" cx="85" cy="85" r="72" fill="none" stroke="url(#g)" stroke-width="14"
+              stroke-linecap="round" stroke-dasharray="452" stroke-dashoffset="452"/>
+            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#6fb4a8"/><stop offset="1" stop-color="#7c6bd6"/>
+            </linearGradient></defs>
+          </svg>
+          <div class="pct"><div><b id="pctNum">0%</b><span>complete</span></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><b id="statGoals">0</b><span>Goals</span></div>
+          <div class="stat"><b id="statDone">0</b><span>Achieved</span></div>
+          <div class="stat"><b id="statMs">0</b><span>Milestones</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">💡 Tip: click any text to edit it. Break each goal into small milestones — the progress ring fills as you check them off. Your plan lives on this device; use <b>Backup</b> to save a copy or move it to another device.</div>
+
+  <div class="section-head">
+    <div><h2>Vision board</h2><p>The feeling behind the goals. Add images-in-words: places, moods, milestones.</p></div>
+  </div>
+  <div class="vision" id="vision"></div>
+
+  <div class="section-head">
+    <div><h2>Life areas &amp; goals</h2><p>Balance matters — grow across every part of your life, not just one.</p></div>
+  </div>
+  <div id="areas"></div>
+  <button class="add-area" id="addArea">＋ Add a life area</button>
+
+  <div class="section-head">
+    <div><h2>Habit tracker</h2><p>The small actions behind your goals — tick each month you keep them going.</p></div>
+  </div>
+  <div class="card">
+    <div class="habit-wrap"><div id="habits"></div></div>
+    <div class="habit-hint">← swipe the grid sideways to see all 12 months →</div>
+    <button class="add-habit" id="addHabit">＋ Add a habit</button>
+  </div>
+
+  <div class="section-head">
+    <div><h2>Quarterly check-ins</h2><p>Goals fade by February. A few minutes every quarter keeps them alive.</p></div>
+  </div>
+  <div class="card" id="checkins"></div>
+  </section>
+
+  <footer>
+    <div>Made with intention · <b>Dreams to Done</b></div>
+    <div class="noprint">A single self-contained file — works fully offline, no account, nothing tracked.</div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SEED=false;   // demo build: flip this single line to true for a pre-filled screenshot copy
+  var KEY="d2d_goal_planner_v1";
+  var PALETTE=["#efe7ff","#ffe9f0","#e4f5f0","#fff3dd","#e8effc","#f3ede4"];
+  var AREA_EMOJI=["🌿","💼","💛","🌱","🎉","🏡","✈️","🎨","📚","🧘"];
+  var MI=["J","F","M","A","M","J","J","A","S","O","N","D"];
+  var MF=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var QL=[["Q1","January – March"],["Q2","April – June"],["Q3","July – September"],["Q4","October – December"]];
+
+  var defaultState=function(){
+    var y=new Date().getFullYear();
+    // if we're in the last quarter, people plan for next year
+    if(new Date().getMonth()>=8) y=y+1;
+    var st={
+      year:String(y), woty:"", intention:"",
+      theme:"",
+      reflect:{rating:0, word:"", proud:"", learned:"", grateful:"", release:""},
+      checkins:[{well:"",adjust:""},{well:"",adjust:""},{well:"",adjust:""},{well:"",adjust:""}],
+      habits:[habit("Move my body"),habit("Read before bed"),habit("No phone first hour")],
+      areas:[
+        area("🌿","Health & Wellbeing",[goal("Move my body 4x a week",["Pick 2 workouts I actually enjoy","Book week 1 into the calendar"])]),
+        area("💼","Career & Money",[goal("Grow my income stream",[])]),
+        area("💛","Relationships",[]),
+        area("🌱","Personal Growth",[goal("Read 12 books this year",[])]),
+        area("🎉","Fun & Adventure",[]),
+        area("🏡","Home & Environment",[])
+      ],
+      vision:[
+        vcard("🌅","Slow mornings with coffee & sunlight",0),
+        vcard("💪","Feeling strong and capable",2),
+        vcard("✈️","One trip somewhere new",3)
+      ]
+    };
+    if(SEED) seedDemo(st);
+    return st;
+  };
+  function uid(){return Math.random().toString(36).slice(2,9)}
+  function area(e,t,g){return {id:uid(),emoji:e,title:t,collapsed:false,score:0,goals:g||[]}}
+  function goal(name,ms){return {id:uid(),name:name||"",why:"",date:"",done:false,ms:(ms||[]).map(function(m){return {id:uid(),t:m,done:false}})}}
+  function vcard(e,t,c){return {id:uid(),emoji:e,text:t,color:c%PALETTE.length}}
+  function habit(n){return {id:uid(),name:n||"",months:[false,false,false,false,false,false,false,false,false,false,false,false]}}
+
+  // demo enrichment (only runs when SEED=true) — for listing/screenshot copy
+  function seedDemo(st){
+    st.woty="Momentum";
+    st.intention="This year I want to feel steady, strong and proud of how I spend my days. By December I'll have built habits that hold without willpower.";
+    st.reflect={rating:4, word:"Rebuilding",
+      proud:"Started my own thing and shipped my first real products.",
+      learned:"Consistency beats intensity — small daily reps win over big bursts.",
+      grateful:"My health, a few close friends, and slow Sunday mornings with coffee.",
+      release:"Comparing my chapter one to everyone else's chapter twenty."};
+    var sc=[7,5,6,8,4,6];
+    st.areas.forEach(function(a,i){a.score=sc[i%sc.length];});
+    if(st.areas[0]&&st.areas[0].goals[0]){st.areas[0].goals[0].ms.forEach(function(m){m.done=true});st.areas[0].goals[0].done=true;}
+    if(st.areas[3]&&st.areas[3].goals[0]){st.areas[3].goals[0].done=true;}
+    st.checkins[0]={well:"Kept my morning walks 5 days a week and shipped two products.",adjust:"Protect deep-work mornings — no email before noon."};
+    if(st.habits[0])st.habits[0].months=[true,true,true,true,false,false,false,false,false,false,false,false];
+    if(st.habits[1])st.habits[1].months=[true,true,false,true,false,false,false,false,false,false,false,false];
+    if(st.habits[2])st.habits[2].months=[true,false,false,false,false,false,false,false,false,false,false,false];
+  }
+
+  // fill in any fields missing from older saves / imported backups
+  function normalize(s){
+    if(!s||typeof s!=="object"||!Array.isArray(s.areas)) return null;
+    s.year=(typeof s.year==="string"&&s.year)?s.year:String(s.year||new Date().getFullYear());
+    if(typeof s.woty!=="string") s.woty="";
+    if(typeof s.intention!=="string") s.intention="";
+    var r=(s.reflect&&typeof s.reflect==="object")?s.reflect:{};
+    s.reflect={rating:(+r.rating||0), word:r.word||"", proud:r.proud||"", learned:r.learned||"", grateful:r.grateful||"", release:r.release||""};
+    s.areas.forEach(function(a){
+      var n=parseInt(a.score,10); a.score=isNaN(n)?0:Math.max(0,Math.min(10,n));
+      if(!Array.isArray(a.goals)) a.goals=[];
+      a.goals.forEach(function(g){if(!Array.isArray(g.ms))g.ms=[];});
+    });
+    if(!Array.isArray(s.vision)) s.vision=[];
+    if(!Array.isArray(s.checkins)) s.checkins=[];
+    while(s.checkins.length<4) s.checkins.push({well:"",adjust:""});
+    s.checkins=s.checkins.slice(0,4).map(function(q){q=q||{};return {well:q.well||"",adjust:q.adjust||""};});
+    if(!Array.isArray(s.habits)) s.habits=[];
+    s.habits.forEach(function(h){if(!Array.isArray(h.months))h.months=[];while(h.months.length<12)h.months.push(false);h.months=h.months.slice(0,12).map(function(x){return !!x;});if(typeof h.name!=="string")h.name="";});
+    return s;
+  }
+
+  var state=load();
+  function load(){
+    try{var s=localStorage.getItem(KEY);if(s){var n=normalize(JSON.parse(s));if(n)return n;}}catch(e){}
+    return defaultState();
+  }
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+  // ---------- render ----------
+  var $=function(id){return document.getElementById(id)};
+  function render(){
+    $("year").value=state.year;
+    $("woty").value=state.woty;
+    $("intention").value=state.intention;
+    renderReflect();
+    renderAreas();
+    renderWheel();
+    renderHabits();
+    renderCheckins();
+    renderVision();
+    updateStats();
+    updateYears();
+  }
+
+  function renderHabits(){
+    var box=$("habits");if(!box)return;box.innerHTML="";
+    var tbl=document.createElement("table");tbl.className="habit-grid";
+    var thead=document.createElement("thead");var htr=document.createElement("tr");
+    var thName=document.createElement("th");thName.className="hname";thName.textContent="Habit";htr.appendChild(thName);
+    for(var m=0;m<12;m++){var th=document.createElement("th");th.textContent=MI[m];th.title=MF[m];htr.appendChild(th);}
+    htr.appendChild(document.createElement("th"));
+    thead.appendChild(htr);tbl.appendChild(thead);
+    var tb=document.createElement("tbody");
+    state.habits.forEach(function(h){
+      var tr=document.createElement("tr");tr.className="hrow";
+      var nameTd=document.createElement("td");
+      var cell=document.createElement("div");cell.className="hname-cell";
+      var ni=document.createElement("input");ni.value=h.name;ni.placeholder="New habit";
+      ni.addEventListener("input",function(){h.name=ni.value;save();});
+      var del=document.createElement("button");del.className="habit-del";del.innerHTML="×";del.title="Remove habit";
+      del.addEventListener("click",function(){state.habits=state.habits.filter(function(x){return x!==h;});save();renderHabits();});
+      cell.appendChild(ni);cell.appendChild(del);nameTd.appendChild(cell);tr.appendChild(nameTd);
+      var cntEl=document.createElement("span");cntEl.className="hcount";
+      for(var i=0;i<12;i++){(function(mi){
+        var td=document.createElement("td");
+        var c=document.createElement("div");c.className="hcell"+(h.months[mi]?" on":"");c.innerHTML=h.months[mi]?"✓":"";c.title=MF[mi];
+        c.addEventListener("click",function(){h.months[mi]=!h.months[mi];c.classList.toggle("on",h.months[mi]);c.innerHTML=h.months[mi]?"✓":"";cntEl.textContent=h.months.filter(Boolean).length+"/12";save();});
+        td.appendChild(c);tr.appendChild(td);
+      })(i);}
+      cntEl.textContent=h.months.filter(Boolean).length+"/12";
+      var cntTd=document.createElement("td");cntTd.appendChild(cntEl);tr.appendChild(cntTd);
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);box.appendChild(tbl);
+  }
+
+  function renderCheckins(){
+    var box=$("checkins");if(!box)return;box.innerHTML="";
+    var grid=document.createElement("div");grid.className="q-grid";
+    state.checkins.forEach(function(q,idx){
+      var card=document.createElement("div");card.className="qcard";
+      var h3=document.createElement("h3");h3.textContent=QL[idx][0];
+      var mon=document.createElement("div");mon.className="qmon";mon.textContent=QL[idx][1];
+      card.appendChild(h3);card.appendChild(mon);
+      [["well","What went well?"],["adjust","What will I adjust?"]].forEach(function(f){
+        var d=document.createElement("div");d.className="qfield";
+        var lb=document.createElement("label");lb.textContent=f[1];
+        var ta=document.createElement("textarea");ta.value=q[f[0]]||"";ta.placeholder="…";
+        ta.addEventListener("input",function(){q[f[0]]=ta.value;save();});
+        d.appendChild(lb);d.appendChild(ta);card.appendChild(d);
+      });
+      grid.appendChild(card);
+    });
+    box.appendChild(grid);
+  }
+
+  function lastYear(){var n=parseInt(state.year,10);return isNaN(n)?"last year":String(n-1);}
+
+  function updateYears(){
+    var py=state.year||"", ly=lastYear(), e;
+    if(e=$("tabPlanYr"))e.textContent=py;
+    if(e=$("tabReflectYr"))e.textContent=ly;
+    if(e=$("reflectHead"))e.textContent="Look back — "+ly+" in review";
+    if(e=$("toPlan"))e.textContent="Plan "+(py||"the year")+" →";
+  }
+  function setTab(name,noScroll){
+    var plan=name!=="reflect";
+    $("viewPlan").classList.toggle("show",plan);
+    $("viewReflect").classList.toggle("show",!plan);
+    $("tabPlan").classList.toggle("active",plan);
+    $("tabReflect").classList.toggle("active",!plan);
+    $("tabPlan").setAttribute("aria-selected",plan?"true":"false");
+    $("tabReflect").setAttribute("aria-selected",plan?"false":"true");
+    try{localStorage.setItem("d2d_tab",plan?"plan":"reflect")}catch(e){}
+    if(!noScroll)window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  function renderReflect(){
+    var ly=lastYear();
+    var h=$("reflectHead");if(h)h.textContent="Look back — "+ly+" in review";
+    var box=$("reflect");box.innerHTML="";
+
+    var top=document.createElement("div");top.className="reflect-top";
+    var rate=document.createElement("div");
+    var rl=document.createElement("div");rl.className="rrate-label";rl.textContent="How was "+ly+", overall?";
+    rate.appendChild(rl);
+    var stars=document.createElement("div");stars.className="stars";
+    for(var i=1;i<=5;i++){(function(n){
+      var b=document.createElement("button");b.type="button";b.innerHTML="★";b.title=n+" / 5";
+      if(n<=state.reflect.rating)b.className="on";
+      b.addEventListener("click",function(){
+        state.reflect.rating=(state.reflect.rating===n)?0:n;save();renderReflect();
+      });
+      stars.appendChild(b);
+    })(i);}
+    rate.appendChild(stars);top.appendChild(rate);
+
+    var word=document.createElement("div");word.className="rword";
+    var wl=document.createElement("label");wl.textContent="One word for "+ly;
+    var wi=document.createElement("input");wi.value=state.reflect.word;wi.maxLength=24;wi.placeholder="e.g. Rebuilding";
+    wi.addEventListener("input",function(){state.reflect.word=wi.value;save()});
+    word.appendChild(wl);word.appendChild(wi);top.appendChild(word);
+    box.appendChild(top);
+
+    var grid=document.createElement("div");grid.className="reflect-grid";
+    [["proud","What am I most proud of?"],
+     ["learned","What did "+ly+" teach me?"],
+     ["grateful","What am I grateful for?"],
+     ["release","What am I leaving behind in "+ly+"?"]
+    ].forEach(function(f){
+      var d=document.createElement("div");d.className="rfield";
+      var lb=document.createElement("label");lb.textContent=f[1];
+      var ta=document.createElement("textarea");ta.value=state.reflect[f[0]]||"";ta.placeholder="Take a moment…";
+      ta.addEventListener("input",function(){state.reflect[f[0]]=ta.value;save()});
+      d.appendChild(lb);d.appendChild(ta);grid.appendChild(d);
+    });
+    box.appendChild(grid);
+  }
+
+  function renderWheel(){
+    var box=$("wheel");box.innerHTML="";
+    var g=document.createElement("div");g.className="wheel-grid2";
+    var radar=document.createElement("div");radar.className="wheel-radar";radar.id="wheelRadar";
+    var sliders=document.createElement("div");sliders.className="wheel-sliders";
+    state.areas.forEach(function(a){
+      var row=document.createElement("div");row.className="wrow";
+      var we=document.createElement("span");we.className="we";we.textContent=a.emoji;
+      var wn=document.createElement("span");wn.className="wn";wn.textContent=a.title||"Untitled";
+      var sl=document.createElement("input");sl.type="range";sl.min=0;sl.max=10;sl.step=1;sl.value=a.score||0;
+      sl.setAttribute("aria-label","Rate "+(a.title||"area")+" out of 10");
+      var wv=document.createElement("span");wv.className="wv";wv.textContent=(a.score||0);
+      sl.addEventListener("input",function(){
+        a.score=parseInt(sl.value,10)||0;wv.textContent=a.score;drawRadar();save();
+      });
+      row.appendChild(we);row.appendChild(wn);row.appendChild(sl);row.appendChild(wv);
+      sliders.appendChild(row);
+    });
+    g.appendChild(radar);g.appendChild(sliders);box.appendChild(g);
+    var foot=document.createElement("div");foot.className="wheel-foot";foot.id="wheelFoot";box.appendChild(foot);
+    drawRadar();
+  }
+
+  function drawRadar(){
+    var holder=$("wheelRadar");if(!holder)return;
+    var areas=state.areas,N=areas.length,cx=150,cy=150,R=104;
+    var svg='<svg viewBox="-30 -30 360 360" width="300" height="300" xmlns="http://www.w3.org/2000/svg">';
+    if(N<3){
+      svg+='<circle class="wheel-ring" cx="150" cy="150" r="104"/>'+
+           '<text class="wheel-hint" x="150" y="152" text-anchor="middle">Add 3+ life areas to see your wheel</text></svg>';
+      holder.innerHTML=svg;var f0=$("wheelFoot");if(f0)f0.innerHTML="";return;
+    }
+    function pt(i,r){var ang=(-90+i*360/N)*Math.PI/180;return [cx+r*Math.cos(ang),cy+r*Math.sin(ang)];}
+    [2,4,6,8,10].forEach(function(lv){
+      var pts=[];for(var i=0;i<N;i++){var p=pt(i,R*lv/10);pts.push(p[0].toFixed(1)+","+p[1].toFixed(1));}
+      svg+='<polygon class="wheel-ring" points="'+pts.join(" ")+'"/>';
+    });
+    var any=false;
+    for(var i=0;i<N;i++){
+      var e=pt(i,R);
+      svg+='<line class="wheel-axis" x1="'+cx+'" y1="'+cy+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'"/>';
+      var lp=pt(i,R+16);
+      var anchor=lp[0]<cx-4?"end":(lp[0]>cx+4?"start":"middle");
+      var em=areas[i].emoji||"",ti=areas[i].title||"";
+      var lab=(em+" "+ti).trim();
+      if(lab.length>13){var fw=ti.split(/[\s&/]+/)[0]||ti;lab=(em+" "+fw).trim();if(lab.length>14)lab=lab.slice(0,13)+"…";}
+      svg+='<text class="wheel-lbl" x="'+lp[0].toFixed(1)+'" y="'+(lp[1]+3).toFixed(1)+'" text-anchor="'+anchor+'">'+esc(lab)+'</text>';
+      if((areas[i].score||0)>0)any=true;
+    }
+    if(any){
+      var dp=[];for(var j=0;j<N;j++){var p2=pt(j,R*(areas[j].score||0)/10);dp.push(p2[0].toFixed(1)+","+p2[1].toFixed(1));}
+      svg+='<polygon class="wheel-poly" points="'+dp.join(" ")+'"/>';
+      for(var k=0;k<N;k++){if((areas[k].score||0)>0){var pd=pt(k,R*(areas[k].score||0)/10);svg+='<circle class="wheel-dot" cx="'+pd[0].toFixed(1)+'" cy="'+pd[1].toFixed(1)+'" r="3.2"/>';}}
+    }else{
+      svg+='<text class="wheel-hint" x="150" y="152" text-anchor="middle">Drag the sliders to begin</text>';
+    }
+    svg+='</svg>';holder.innerHTML=svg;
+
+    var foot=$("wheelFoot");if(!foot)return;
+    var rated=areas.filter(function(a){return (a.score||0)>0;});
+    if(!rated.length){foot.innerHTML='<span class="wlab">Rate each area from 1–10 to see your balance at a glance.</span>';return;}
+    var avg=rated.reduce(function(s,a){return s+a.score;},0)/rated.length;
+    var low=rated.slice().sort(function(a,b){return a.score-b.score;})[0];
+    foot.innerHTML='<div><span class="wbig">'+avg.toFixed(1)+'</span> <span class="wlab">/ 10 average balance</span></div>'+
+      '<div><span class="wlab">Lowest right now:</span> <span class="wbig" style="font-size:15px">'+esc((low.emoji||"")+" "+(low.title||"Untitled"))+'</span> <span class="wlab">— a good place to set a goal.</span></div>';
+  }
+
+  function renderAreas(){
+    var wrap=$("areas");wrap.innerHTML="";
+    state.areas.forEach(function(a){
+      var done=a.goals.filter(function(g){return g.done}).length;
+      var prog=areaProgress(a);
+      var el=document.createElement("div");
+      el.className="area"+(a.collapsed?" collapsed":"");
+      var head=document.createElement("div");head.className="area-head";
+      head.innerHTML=
+        '<span class="area-emoji" data-emoji>'+a.emoji+'</span>'+
+        '<input class="area-title" value="'+esc(a.title)+'">'+
+        '<span class="area-meta">'+a.goals.length+' goal'+(a.goals.length!==1?"s":"")+'</span>'+
+        '<span class="area-bar"><i style="width:'+prog+'%"></i></span>'+
+        '<span class="chev">▾</span>';
+      // collapse (but not when interacting with inputs)
+      head.addEventListener("click",function(ev){
+        if(ev.target.closest("input")||ev.target.hasAttribute("data-emoji"))return;
+        a.collapsed=!a.collapsed;save();renderAreas();
+      });
+      head.querySelector(".area-title").addEventListener("input",function(e){a.title=e.target.value;save();drawRadar()});
+      head.querySelector("[data-emoji]").addEventListener("click",function(){
+        var n=prompt("Emoji for this area:",a.emoji);if(n!==null){a.emoji=n.trim()||a.emoji;save();renderAreas();renderWheel()}
+      });
+      el.appendChild(head);
+
+      var gwrap=document.createElement("div");gwrap.className="goals";
+      a.goals.forEach(function(g){gwrap.appendChild(goalEl(a,g))});
+      var ag=document.createElement("button");ag.className="add-goal";ag.textContent="＋ Add goal";
+      ag.addEventListener("click",function(){a.goals.push(goal("",[]));save();renderAreas();updateStats();
+        // focus new goal
+        setTimeout(function(){var ins=el.querySelectorAll(".goal-name");if(ins.length)ins[ins.length-1].focus()},30);
+      });
+      gwrap.appendChild(ag);
+
+      // delete area
+      var da=document.createElement("button");da.className="add-goal";da.style.color="var(--muted)";da.style.marginLeft="14px";
+      da.textContent="🗑 Remove area";
+      da.addEventListener("click",function(){
+        if(confirm("Remove \""+a.title+"\" and its goals?")){state.areas=state.areas.filter(function(x){return x!==a});save();renderAreas();renderWheel();updateStats()}
+      });
+      gwrap.appendChild(da);
+      el.appendChild(gwrap);
+      wrap.appendChild(el);
+    });
+  }
+
+  function goalEl(a,g){
+    var el=document.createElement("div");el.className="goal"+(g.done?" done":"");
+    var top=document.createElement("div");top.className="goal-top";
+    var chk=document.createElement("div");chk.className="goal-check"+(g.done?" done":"");chk.innerHTML=g.done?"✓":"";
+    chk.addEventListener("click",function(){g.done=!g.done;if(g.done)g.ms.forEach(function(m){m.done=true});save();renderAreas();updateStats()});
+    top.appendChild(chk);
+
+    var main=document.createElement("div");main.className="goal-main";
+    var name=document.createElement("input");name.className="goal-name";name.value=g.name;name.placeholder="What do you want to achieve?";
+    name.addEventListener("input",function(){g.name=name.value;save()});
+    main.appendChild(name);
+
+    var sub=document.createElement("div");sub.className="goal-sub";
+    var why=document.createElement("input");why.className="goal-why";why.value=g.why;why.placeholder="why this matters…";
+    why.addEventListener("input",function(){g.why=why.value;save()});
+    var date=document.createElement("label");date.className="goal-date";date.innerHTML="🎯 ";
+    var di=document.createElement("input");di.type="date";di.value=g.date;
+    di.addEventListener("input",function(){g.date=di.value;save()});
+    date.appendChild(di);
+    var del=document.createElement("button");del.className="goal-del";del.innerHTML="×";del.title="Delete goal";
+    del.addEventListener("click",function(){a.goals=a.goals.filter(function(x){return x!==g});save();renderAreas();updateStats()});
+    sub.appendChild(why);sub.appendChild(date);sub.appendChild(del);
+    main.appendChild(sub);
+    top.appendChild(main);
+    el.appendChild(top);
+
+    // milestones
+    var mwrap=document.createElement("div");mwrap.className="milestones";
+    g.ms.forEach(function(m){
+      var row=document.createElement("div");row.className="ms"+(m.done?" done":"");
+      var cb=document.createElement("input");cb.type="checkbox";cb.checked=m.done;
+      cb.addEventListener("change",function(){m.done=cb.checked;
+        // goal auto-complete when all milestones done
+        if(g.ms.length&&g.ms.every(function(x){return x.done})){g.done=true}
+        else if(g.done&&!m.done){g.done=false}
+        save();renderAreas();updateStats()});
+      var tx=document.createElement("input");tx.type="text";tx.value=m.t;tx.placeholder="milestone / step";
+      tx.addEventListener("input",function(){m.t=tx.value;save()});
+      var x=document.createElement("button");x.className="x";x.innerHTML="×";
+      x.addEventListener("click",function(){g.ms=g.ms.filter(function(y){return y!==m});save();renderAreas();updateStats()});
+      row.appendChild(cb);row.appendChild(tx);row.appendChild(x);
+      mwrap.appendChild(row);
+    });
+    el.appendChild(mwrap);
+    var addm=document.createElement("button");addm.className="add-ms";addm.textContent="＋ milestone";
+    addm.addEventListener("click",function(){g.ms.push({id:uid(),t:"",done:false});save();renderAreas();
+      setTimeout(function(){var t=el.querySelectorAll(".ms input[type=text]");if(t.length)t[t.length-1].focus()},30)});
+    el.appendChild(addm);
+    return el;
+  }
+
+  function renderVision(){
+    var v=$("vision");v.innerHTML="";
+    state.vision.forEach(function(c){
+      var el=document.createElement("div");el.className="vcard";el.style.background=PALETTE[c.color%PALETTE.length];
+      var em=document.createElement("input");em.className="vemoji";em.value=c.emoji;em.maxLength=2;
+      em.addEventListener("input",function(){c.emoji=em.value;save()});
+      var tx=document.createElement("textarea");tx.className="vtext";tx.value=c.text;tx.placeholder="a dream, in a few words…";tx.rows=3;
+      tx.addEventListener("input",function(){c.text=tx.value;save()});
+      var x=document.createElement("button");x.className="vx";x.innerHTML="×";
+      x.addEventListener("click",function(){state.vision=state.vision.filter(function(y){return y!==c});save();renderVision()});
+      var swatch=document.createElement("div");swatch.style.cssText="position:absolute;bottom:8px;right:8px;width:16px;height:16px;border-radius:50%;cursor:pointer;border:1px solid rgba(0,0,0,.1)";
+      swatch.style.background="rgba(255,255,255,.6)";swatch.title="Change colour";
+      swatch.addEventListener("click",function(){c.color=(c.color+1)%PALETTE.length;save();renderVision()});
+      el.appendChild(em);el.appendChild(tx);el.appendChild(x);el.appendChild(swatch);
+      v.appendChild(el);
+    });
+    var add=document.createElement("button");add.className="add-vcard";add.innerHTML="＋<br>add a dream";
+    add.addEventListener("click",function(){state.vision.push(vcard("✨","",state.vision.length));save();renderVision()});
+    v.appendChild(add);
+  }
+
+  function areaProgress(a){
+    if(!a.goals.length)return 0;
+    var total=0,got=0;
+    a.goals.forEach(function(g){
+      if(g.ms.length){total+=g.ms.length;got+=g.ms.filter(function(m){return m.done}).length}
+      else{total+=1;got+=g.done?1:0}
+    });
+    return total?Math.round(got/total*100):0;
+  }
+  function updateStats(){
+    var goals=0,done=0,ms=0,total=0,got=0;
+    state.areas.forEach(function(a){a.goals.forEach(function(g){
+      goals++;if(g.done)done++;ms+=g.ms.length;
+      if(g.ms.length){total+=g.ms.length;got+=g.ms.filter(function(m){return m.done}).length}
+      else{total+=1;got+=g.done?1:0}
+    })});
+    var pct=total?Math.round(got/total*100):0;
+    $("statGoals").textContent=goals;$("statDone").textContent=done;$("statMs").textContent=ms;
+    $("pctNum").textContent=pct+"%";
+    var C=452;$("ringFill").style.strokeDashoffset=C-(C*pct/100);
+  }
+  function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+
+  // ---------- header inputs ----------
+  $("year").addEventListener("input",function(e){state.year=e.target.value;save();updateYears()});
+  $("woty").addEventListener("input",function(e){state.woty=e.target.value;save()});
+  $("intention").addEventListener("input",function(e){state.intention=e.target.value;save()});
+
+  // ---------- toolbar ----------
+  $("addArea").addEventListener("click",function(){
+    var i=state.areas.length%AREA_EMOJI.length;
+    state.areas.push(area(AREA_EMOJI[i],"New area",[]));save();renderAreas();renderWheel();
+    window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+  });
+  $("addHabit").addEventListener("click",function(){
+    state.habits.push(habit(""));save();renderHabits();
+    setTimeout(function(){var ins=$("habits").querySelectorAll(".hname-cell input");if(ins.length)ins[ins.length-1].focus();},30);
+  });
+  $("printBtn").addEventListener("click",function(){window.print()});
+  $("resetBtn").addEventListener("click",function(){
+    if(confirm("Start over with a blank planner? Your current plan will be cleared (make a Backup first if unsure).")){
+      state=defaultState();save();render();
+    }
+  });
+  $("exportBtn").addEventListener("click",function(){
+    var blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+    var url=URL.createObjectURL(blob);var a=document.createElement("a");
+    a.href=url;a.download="my-goal-planner-"+state.year+".json";a.click();
+    setTimeout(function(){URL.revokeObjectURL(url)},100);
+  });
+  $("importBtn").addEventListener("click",function(){$("importFile").click()});
+  $("importFile").addEventListener("change",function(e){
+    var f=e.target.files[0];if(!f)return;var r=new FileReader();
+    r.onload=function(){try{var d=normalize(JSON.parse(r.result));if(d){state=d;save();render();}else alert("That doesn't look like a planner backup.")}catch(err){alert("Couldn't read that file.")}};
+    r.readAsText(f);e.target.value="";
+  });
+
+  // theme
+  var pref=null;try{pref=localStorage.getItem("d2d_theme")}catch(e){}
+  if(pref)document.documentElement.setAttribute("data-theme",pref);
+  $("themeBtn").addEventListener("click",function(){
+    var cur=document.documentElement.getAttribute("data-theme");
+    var next=cur==="dark"?"light":"dark";
+    document.documentElement.setAttribute("data-theme",next);
+    try{localStorage.setItem("d2d_theme",next)}catch(e){}
+  });
+
+  // ---------- tabs / views ----------
+  $("tabPlan").addEventListener("click",function(){setTab("plan")});
+  $("tabReflect").addEventListener("click",function(){setTab("reflect")});
+  $("toPlan").addEventListener("click",function(){setTab("plan")});
+
+  render();
+  var savedTab="plan";try{savedTab=localStorage.getItem("d2d_tab")||"plan"}catch(e){}
+  setTab(savedTab,true);
+})();
+</script>
+
+<script>
+  /* Register the service worker for offline use + installability (relative path). */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js').catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>
