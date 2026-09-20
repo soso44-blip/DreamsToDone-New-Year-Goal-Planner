@@ -1,5 +1,5 @@
 /* Dreams to Done — Goal & Resolution Planner service worker */
-const CACHE = 'd2d-goal-planner-v1';
+const CACHE = 'd2d-goal-planner-v2';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './icon-192.png', './icon-512.png', './icon-512-maskable.png',

@@ -214,15 +214,16 @@
 
   /* Wheel of life */
   .wheel-grid2{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:center}
-  @media(max-width:680px){.wheel-grid2{grid-template-columns:1fr;justify-items:center}}
-  .wheel-radar{width:300px;height:300px;flex:none}
-  .wheel-sliders{width:100%;display:flex;flex-direction:column;gap:13px}
-  .wrow{display:flex;align-items:center;gap:10px}
+  @media(max-width:680px){.wheel-grid2{grid-template-columns:1fr}}
+  .wheel-grid2>*{min-width:0}
+  .wheel-radar{width:100%;max-width:300px;flex:none;margin:0 auto;min-width:0}
+  .wheel-radar svg{width:100%;height:auto;display:block}
+  .wheel-sliders{width:100%;min-width:0;display:flex;flex-direction:column;gap:13px}
+  .wrow{display:flex;align-items:center;gap:9px;min-width:0}
   .wrow .we{font-size:18px;width:24px;text-align:center;flex:none}
-  .wrow .wn{font-size:13px;font-weight:600;color:var(--ink);flex:none;width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  @media(max-width:680px){.wrow .wn{width:34vw;max-width:150px}}
-  .wrow input[type=range]{flex:1;accent-color:var(--accent);cursor:pointer;min-width:70px;height:4px}
-  .wrow .wv{font-family:var(--serif);font-weight:700;font-size:16px;width:22px;text-align:right;color:var(--accent)}
+  .wrow .wn{font-size:13px;font-weight:600;color:var(--ink);flex:1 1 40%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wrow input[type=range]{flex:1 1 54%;accent-color:var(--accent);cursor:pointer;min-width:56px;height:4px}
+  .wrow .wv{font-family:var(--serif);font-weight:700;font-size:16px;width:24px;flex:none;text-align:right;color:var(--accent)}
   .wheel-foot{margin-top:18px;padding-top:15px;border-top:1px solid var(--line);display:flex;gap:26px;flex-wrap:wrap;align-items:baseline}
   .wheel-foot .wbig{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink)}
   .wheel-foot .wlab{font-size:12.5px;color:var(--muted)}
@@ -272,17 +273,32 @@
     .rfield textarea,.qfield textarea,.hname-cell input,.area-title,.woty input{font-size:16px}
   }
 
+  .print-cover{display:none}
+
   @media print{
+    @page{margin:14mm}
     body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .toolbar,.tabs,.view-next,.add-area,.add-goal,.add-ms,.add-vcard,.add-habit,.habit-hint,.goal-del,.habit-del,.ms .x,.vcard .vx,.hint,footer .noprint{display:none!important}
     .wrow input[type=range]{display:none!important}
     .view{display:block!important;animation:none}
     #viewPlan{break-before:page}
-    .section-head{break-after:avoid}
-    .hero,.area,.vcard,.card,.qcard{box-shadow:none;border-color:#ddd;break-inside:avoid}
+    .section-head{break-after:avoid;border-bottom:1px solid #e7e3da;padding-bottom:10px;margin-bottom:16px}
+    .section-head h2{color:#2b2a33}
+    .hero,.area,.vcard,.card,.qcard{box-shadow:none;border-color:#e7e3da;break-inside:avoid}
     .area.collapsed .goals{display:block}
     .habit-wrap{overflow:visible}
     .habit-grid{min-width:0}
+    footer{margin-top:24px;color:#9a94a8}
+    /* elegant cover page */
+    .print-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+      min-height:94vh;break-after:page;color:#2b2a33}
+    .pc-star{font-size:64px;line-height:1;color:#7c6bd6}
+    .pc-brand{font-size:15px;letter-spacing:.32em;text-transform:uppercase;color:#7c6bd6;font-weight:700;margin-top:18px}
+    .pc-year{font-family:var(--serif);font-size:120px;font-weight:700;line-height:1;margin-top:14px;color:#2b2a33}
+    .pc-title{font-family:var(--serif);font-size:34px;color:#5c566b;margin-top:2px}
+    .pc-woty{font-family:var(--serif);font-size:23px;color:#5aa596;margin-top:30px}
+    .pc-rule{width:130px;height:3px;background:linear-gradient(90deg,#6fb4a8,#7c6bd6);border-radius:3px;margin:34px 0 0}
+    .pc-tag{font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:#9a94a8;margin-top:22px}
   }
 </style>
 
@@ -301,6 +317,16 @@
 <body>
 <div class="wrap">
 
+  <div class="print-cover" aria-hidden="true">
+    <div class="pc-star">✦</div>
+    <div class="pc-brand">Dreams to Done</div>
+    <div class="pc-year" id="pcYear">2027</div>
+    <div class="pc-title">Goal &amp; Resolution Planner</div>
+    <div class="pc-woty" id="pcWoty"></div>
+    <div class="pc-rule"></div>
+    <div class="pc-tag">Reflect · Envision · Achieve</div>
+  </div>
+
   <header class="top">
     <div class="brand">
       <div class="logo">✦</div>
@@ -310,6 +336,7 @@
       </div>
     </div>
     <div class="toolbar">
+      <button class="btn" id="exampleBtn" title="Fill with an example you can edit">✨ Example</button>
       <button class="btn" id="themeBtn" title="Toggle light/dark">◐ Theme</button>
       <button class="btn" id="printBtn">⎙ Print / PDF</button>
       <button class="btn" id="exportBtn">↓ Backup</button>
@@ -382,7 +409,7 @@
     </div>
   </div>
 
-  <div class="hint">💡 Tip: click any text to edit it. Break each goal into small milestones — the progress ring fills as you check them off. Your plan lives on this device; use <b>Backup</b> to save a copy or move it to another device.</div>
+  <div class="hint">💡 New here? Tap <b>✨ Example</b> up top to see a filled-in sample you can edit — or just start typing. Click any text to edit it, and break each goal into small milestones so the progress ring fills as you check them off. Your plan lives on this device; use <b>Backup</b> to move it to another device.</div>
 
   <div class="section-head">
     <div><h2>Vision board</h2><p>The feeling behind the goals. Add images-in-words: places, moods, milestones.</p></div>
@@ -411,8 +438,7 @@
   </section>
 
   <footer>
-    <div>Made with intention · <b>Dreams to Done</b></div>
-    <div class="noprint">A single self-contained file — works fully offline, no account, nothing tracked.</div>
+    <div>Made by <a href="https://dreamstodone.etsy.com" target="_blank" rel="noopener"><b>Dreams to Done</b></a></div>
   </footer>
 </div>
 
@@ -431,27 +457,24 @@
     var y=new Date().getFullYear();
     // if we're in the last quarter, people plan for next year
     if(new Date().getMonth()>=8) y=y+1;
+    // A fresh, blank planner — structure (life areas) but no pre-filled content.
     var st={
       year:String(y), woty:"", intention:"",
       theme:"",
       reflect:{rating:0, word:"", proud:"", learned:"", grateful:"", release:""},
       checkins:[{well:"",adjust:""},{well:"",adjust:""},{well:"",adjust:""},{well:"",adjust:""}],
-      habits:[habit("Move my body"),habit("Read before bed"),habit("No phone first hour")],
+      habits:[habit(""),habit(""),habit("")],
       areas:[
-        area("🌿","Health & Wellbeing",[goal("Move my body 4x a week",["Pick 2 workouts I actually enjoy","Book week 1 into the calendar"])]),
-        area("💼","Career & Money",[goal("Grow my income stream",[])]),
+        area("🌿","Health & Wellbeing",[]),
+        area("💼","Career & Money",[]),
         area("💛","Relationships",[]),
-        area("🌱","Personal Growth",[goal("Read 12 books this year",[])]),
+        area("🌱","Personal Growth",[]),
         area("🎉","Fun & Adventure",[]),
         area("🏡","Home & Environment",[])
       ],
-      vision:[
-        vcard("🌅","Slow mornings with coffee & sunlight",0),
-        vcard("💪","Feeling strong and capable",2),
-        vcard("✈️","One trip somewhere new",3)
-      ]
+      vision:[]
     };
-    if(SEED) seedDemo(st);
+    if(SEED) seedExample(st);   // demo build only; customers start blank
     return st;
   };
   function uid(){return Math.random().toString(36).slice(2,9)}
@@ -460,8 +483,8 @@
   function vcard(e,t,c){return {id:uid(),emoji:e,text:t,color:c%PALETTE.length}}
   function habit(n){return {id:uid(),name:n||"",months:[false,false,false,false,false,false,false,false,false,false,false,false]}}
 
-  // demo enrichment (only runs when SEED=true) — for listing/screenshot copy
-  function seedDemo(st){
+  // Fill a state with an editable EXAMPLE (used by the demo build and the "Example" button).
+  function seedExample(st){
     st.woty="Momentum";
     st.intention="This year I want to feel steady, strong and proud of how I spend my days. By December I'll have built habits that hold without willpower.";
     st.reflect={rating:4, word:"Rebuilding",
@@ -469,14 +492,23 @@
       learned:"Consistency beats intensity — small daily reps win over big bursts.",
       grateful:"My health, a few close friends, and slow Sunday mornings with coffee.",
       release:"Comparing my chapter one to everyone else's chapter twenty."};
+    if(st.areas[0]) st.areas[0].goals=[goal("Move my body 4x a week",["Pick 2 workouts I actually enjoy","Book week 1 into the calendar"])];
+    if(st.areas[1]) st.areas[1].goals=[goal("Grow my income stream",[])];
+    if(st.areas[3]) st.areas[3].goals=[goal("Read 12 books this year",[])];
     var sc=[7,5,6,8,4,6];
     st.areas.forEach(function(a,i){a.score=sc[i%sc.length];});
     if(st.areas[0]&&st.areas[0].goals[0]){st.areas[0].goals[0].ms.forEach(function(m){m.done=true});st.areas[0].goals[0].done=true;}
     if(st.areas[3]&&st.areas[3].goals[0]){st.areas[3].goals[0].done=true;}
+    st.vision=[
+      vcard("🌅","Slow mornings with coffee & sunlight",0),
+      vcard("💪","Feeling strong and capable",2),
+      vcard("✈️","One trip somewhere new",3)
+    ];
+    st.habits=[habit("Move my body"),habit("Read before bed"),habit("No phone first hour")];
+    st.habits[0].months=[true,true,true,true,false,false,false,false,false,false,false,false];
+    st.habits[1].months=[true,true,false,true,false,false,false,false,false,false,false,false];
+    st.habits[2].months=[true,false,false,false,false,false,false,false,false,false,false,false];
     st.checkins[0]={well:"Kept my morning walks 5 days a week and shipped two products.",adjust:"Protect deep-work mornings — no email before noon."};
-    if(st.habits[0])st.habits[0].months=[true,true,true,true,false,false,false,false,false,false,false,false];
-    if(st.habits[1])st.habits[1].months=[true,true,false,true,false,false,false,false,false,false,false,false];
-    if(st.habits[2])st.habits[2].months=[true,false,false,false,false,false,false,false,false,false,false,false];
   }
 
   // fill in any fields missing from older saves / imported backups
@@ -584,6 +616,8 @@
     if(e=$("tabReflectYr"))e.textContent=ly;
     if(e=$("reflectHead"))e.textContent="Look back — "+ly+" in review";
     if(e=$("toPlan"))e.textContent="Plan "+(py||"the year")+" →";
+    if(e=$("pcYear"))e.textContent=py;
+    if(e=$("pcWoty"))e.textContent=state.woty?("Word of the year — "+state.woty):"";
   }
   function setTab(name,noScroll){
     var plan=name!=="reflect";
@@ -849,7 +883,7 @@
 
   // ---------- header inputs ----------
   $("year").addEventListener("input",function(e){state.year=e.target.value;save();updateYears()});
-  $("woty").addEventListener("input",function(e){state.woty=e.target.value;save()});
+  $("woty").addEventListener("input",function(e){state.woty=e.target.value;save();updateYears()});
   $("intention").addEventListener("input",function(e){state.intention=e.target.value;save()});
 
   // ---------- toolbar ----------
@@ -863,9 +897,14 @@
     setTimeout(function(){var ins=$("habits").querySelectorAll(".hname-cell input");if(ins.length)ins[ins.length-1].focus();},30);
   });
   $("printBtn").addEventListener("click",function(){window.print()});
+  $("exampleBtn").addEventListener("click",function(){
+    if(confirm("Load an example plan you can edit? This replaces what's currently on the page (make a Backup first if unsure).")){
+      state=defaultState();seedExample(state);save();render();window.scrollTo({top:0,behavior:"smooth"});
+    }
+  });
   $("resetBtn").addEventListener("click",function(){
     if(confirm("Start over with a blank planner? Your current plan will be cleared (make a Backup first if unsure).")){
-      state=defaultState();save();render();
+      state=defaultState();save();render();window.scrollTo({top:0,behavior:"smooth"});
     }
   });
   $("exportBtn").addEventListener("click",function(){
