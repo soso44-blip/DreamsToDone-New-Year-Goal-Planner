@@ -176,6 +176,43 @@
     background:transparent;color:var(--muted);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}
   .add-area:hover{border-color:var(--accent);color:var(--accent)}
 
+  /* SMART goal helper */
+  .smart{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin:0 4px 14px;overflow:hidden}
+  .smart summary{cursor:pointer;list-style:none;padding:14px 16px;font-weight:700;font-size:14px;color:var(--accent);display:flex;align-items:center;gap:8px}
+  .smart summary::-webkit-details-marker{display:none}
+  .smart summary::after{content:"▾";margin-left:auto;transition:.2s;color:var(--muted)}
+  .smart[open] summary::after{transform:rotate(180deg)}
+  .smart-body{padding:2px 16px 16px;font-size:13.5px;color:var(--muted);line-height:1.5}
+  .smart-body>p{margin:0 0 4px}
+  .smart-row{display:flex;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+  .smart-key{flex:0 0 120px;font-weight:700;color:var(--accent)}
+  .smart-eg{margin-top:12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);font-size:13px}
+  .smart-eg span{color:var(--muted)}
+
+  /* Year at a glance */
+  .yag-legend{display:flex;flex-wrap:wrap;gap:18px;margin-bottom:14px;font-size:12.5px;color:var(--muted)}
+  .yag-legend b{color:var(--ink);font-size:15px;font-family:var(--serif)}
+  .yag-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .yag-m{border:1px solid var(--line);border-radius:12px;padding:10px 11px;min-height:98px;background:var(--bg);display:flex;flex-direction:column;gap:6px;min-width:0}
+  .yag-m.on{background:linear-gradient(160deg,rgba(124,107,214,.12),rgba(111,180,168,.06));border-color:rgba(124,107,214,.30)}
+  .yag-mn{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:6px}
+  .yag-mn .cnt{background:var(--accent);color:#fff;border-radius:10px;font-size:10px;padding:1px 7px;font-weight:700;flex:none}
+  .yag-chip{font-size:12px;line-height:1.28;color:var(--ink);display:flex;gap:5px;align-items:flex-start;min-width:0}
+  .yag-chip.done{color:var(--muted);text-decoration:line-through}
+  .yag-chip .ge{flex:none}
+  .yag-chip .gt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .yag-empty{font-size:11px;color:var(--muted);opacity:.45}
+  .yag-any{margin-top:12px;border:1px dashed var(--line);border-radius:12px;padding:11px 13px}
+  .yag-any .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+  .yag-any .yag-chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+  .yag-any .yag-chip .gt{white-space:normal}
+  @media(max-width:680px){.yag-grid{grid-template-columns:repeat(2,1fr)}}
+
+  /* Brain dump */
+  .braindump{width:100%;min-height:150px;border:none;background:transparent;font-family:inherit;font-size:14.5px;color:var(--ink);line-height:1.65;resize:vertical}
+  .braindump:focus{outline:none}
+  .braindump::placeholder{color:var(--muted)}
+
   /* Vision board */
   .vision{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
   .vcard{border-radius:14px;padding:16px 14px;min-height:120px;display:flex;flex-direction:column;gap:8px;
@@ -250,6 +287,8 @@
   .hcell.on{background:var(--accent-3);border-color:var(--accent-3)}
   .hcell:hover{border-color:var(--accent-3)}
   .hcount{font-family:var(--serif);font-weight:700;font-size:13px;color:var(--accent-3)}
+  .hrow-template{display:none}
+  .ht-name{height:26px;border-bottom:1px solid #d9d4e3;margin:0 4px}
   .add-habit{font-size:12.5px;color:var(--accent);background:transparent;border:none;cursor:pointer;font-family:inherit;font-weight:600;padding:12px 2px 2px}
   .add-habit:hover{text-decoration:underline}
   .habit-hint{display:none;font-size:11.5px;color:var(--muted);margin-top:10px}
@@ -274,12 +313,22 @@
   }
 
   .print-cover{display:none}
+  /* helpers shown only in the printed page */
+  .goal-template{display:none}
+  .gt-line{height:46px;border-bottom:1px solid #d9d4e3;display:flex;align-items:flex-end;gap:14px;padding-bottom:6px;margin-top:2px}
+  .gt-dot{width:16px;height:16px;border:1.6px solid #c9c3d4;border-radius:50%;flex:none;margin-bottom:3px}
+  .wscale{display:none}
+  .dprint{display:none}
 
   @media print{
     @page{margin:14mm}
     body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .toolbar,.tabs,.view-next,.add-area,.add-goal,.add-ms,.add-vcard,.add-habit,.habit-hint,.goal-del,.habit-del,.ms .x,.vcard .vx,.hint,footer .noprint{display:none!important}
     .wrow input[type=range]{display:none!important}
+    ::placeholder{color:transparent!important}
+    .wheel-hint{display:none!important}
+    .goal-date input{display:none!important}
+    .dprint{display:inline}
     .view{display:block!important;animation:none}
     #viewPlan{break-before:page}
     .section-head{break-after:avoid;border-bottom:1px solid #e7e3da;padding-bottom:10px;margin-bottom:16px}
@@ -299,6 +348,30 @@
     .pc-woty{font-family:var(--serif);font-size:23px;color:#5aa596;margin-top:30px}
     .pc-rule{width:130px;height:3px;background:linear-gradient(90deg,#6fb4a8,#7c6bd6);border-radius:3px;margin:34px 0 0}
     .pc-tag{font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:#9a94a8;margin-top:22px}
+  }
+
+  /* "Print blank" — a pristine, hand-fillable template */
+  @media print{
+    html.blankprint .ring-wrap,html.blankprint .pc-woty,html.blankprint .wheel-foot{display:none!important}
+    /* blank out any existing entries so it prints as an empty template (keep the year & area names) */
+    html.blankprint textarea{color:transparent!important}
+    html.blankprint input:not(#year):not(.area-title){color:transparent!important}
+    html.blankprint .goals .goal{display:none!important}
+    html.blankprint .goal-template{display:block}
+    /* ruled writing lines to fill in by hand */
+    html.blankprint .intention,html.blankprint .rfield textarea,html.blankprint .qfield textarea{
+      background-image:repeating-linear-gradient(#fff,#fff 29px,#e7e3f1 29px,#e7e3f1 30px)!important;border-color:#e7e3da!important}
+    html.blankprint .hname-cell input{border-bottom:1px solid #d9d4e3}
+    /* habit tracker → a full grid of blank rows to fill in by hand */
+    html.blankprint .hrow{display:none!important}
+    html.blankprint .hrow-template{display:table-row!important}
+    html.blankprint .ht-box{border-color:#c9c3d4!important}
+    html.blankprint .vcard .vtext{min-height:64px}
+    /* Wheel of Life → a 1–10 scale you circle by hand */
+    html.blankprint .wheel-radar{display:none!important}
+    html.blankprint .wrow .wv{display:none!important}
+    html.blankprint .wrow .wn{flex:0 0 42%}
+    html.blankprint .wscale{display:block;flex:1 1 auto;text-align:right;white-space:nowrap;font-family:var(--serif);font-weight:700;font-size:16px;color:#2b2a33;letter-spacing:0;word-spacing:9px}
   }
 </style>
 
@@ -339,6 +412,7 @@
       <button class="btn" id="exampleBtn" title="Fill with an example you can edit">✨ Example</button>
       <button class="btn" id="themeBtn" title="Toggle light/dark">◐ Theme</button>
       <button class="btn" id="printBtn">⎙ Print / PDF</button>
+      <button class="btn" id="printBlankBtn" title="Print an empty template to fill in by hand">▢ Print blank</button>
       <button class="btn" id="exportBtn">↓ Backup</button>
       <button class="btn" id="importBtn">↑ Restore</button>
       <button class="btn" id="resetBtn">↺ Reset</button>
@@ -419,8 +493,25 @@
   <div class="section-head">
     <div><h2>Life areas &amp; goals</h2><p>Balance matters — grow across every part of your life, not just one.</p></div>
   </div>
+  <details class="smart">
+    <summary>✨ How to write a goal you'll actually keep</summary>
+    <div class="smart-body">
+      <p>The goals that stick are <b>SMART</b>. Give each one a quick check:</p>
+      <div class="smart-row"><div class="smart-key">S — Specific</div><div>Name exactly what you'll do. <span style="color:var(--muted)">"Read more" → "Read 12 books."</span></div></div>
+      <div class="smart-row"><div class="smart-key">M — Measurable</div><div>Add a number so you'll know when it's done.</div></div>
+      <div class="smart-row"><div class="smart-key">A — Achievable</div><div>Stretch yourself, but keep it real for this year.</div></div>
+      <div class="smart-row"><div class="smart-key">R — Relevant</div><div>Tie it to your word of the year and <b>why</b> it matters to you.</div></div>
+      <div class="smart-row"><div class="smart-key">T — Time-bound</div><div>Give it a target date with the 🎯 field, and break it into milestones.</div></div>
+      <div class="smart-eg">Example: <b>Move my body 4× a week</b> — <span>because I want to feel strong · milestones: pick 2 workouts I enjoy → book week 1 in the calendar · 🎯 by Jan 7</span></div>
+    </div>
+  </details>
   <div id="areas"></div>
   <button class="add-area" id="addArea">＋ Add a life area</button>
+
+  <div class="section-head">
+    <div><h2>Your year at a glance</h2><p>Every goal, mapped across the months — see your year fill in, and spot where it's crowded or quiet.</p></div>
+  </div>
+  <div class="card" id="yearMap"></div>
 
   <div class="section-head">
     <div><h2>Habit tracker</h2><p>The small actions behind your goals — tick each month you keep them going.</p></div>
@@ -435,6 +526,11 @@
     <div><h2>Quarterly check-ins</h2><p>Goals fade by February. A few minutes every quarter keeps them alive.</p></div>
   </div>
   <div class="card" id="checkins"></div>
+
+  <div class="section-head">
+    <div><h2>Brain dump</h2><p>Everything else on your mind — ideas, worries, someday-maybes. Clear your head here; it saves as you type.</p></div>
+  </div>
+  <div class="card"><textarea class="braindump" id="notes" placeholder="Let it all out…"></textarea></div>
   </section>
 
   <footer>
@@ -472,7 +568,8 @@
         area("🎉","Fun & Adventure",[]),
         area("🏡","Home & Environment",[])
       ],
-      vision:[]
+      vision:[],
+      notes:""
     };
     if(SEED) seedExample(st);   // demo build only; customers start blank
     return st;
@@ -492,9 +589,12 @@
       learned:"Consistency beats intensity — small daily reps win over big bursts.",
       grateful:"My health, a few close friends, and slow Sunday mornings with coffee.",
       release:"Comparing my chapter one to everyone else's chapter twenty."};
-    if(st.areas[0]) st.areas[0].goals=[goal("Move my body 4x a week",["Pick 2 workouts I actually enjoy","Book week 1 into the calendar"])];
-    if(st.areas[1]) st.areas[1].goals=[goal("Grow my income stream",[])];
-    if(st.areas[3]) st.areas[3].goals=[goal("Read 12 books this year",[])];
+    var yr=st.year;
+    if(st.areas[0]){var g0=goal("Move my body 4x a week",["Pick 2 workouts I actually enjoy","Book week 1 into the calendar"]);g0.why="I want to feel strong and capable";g0.date=yr+"-01-07";st.areas[0].goals=[g0];}
+    if(st.areas[1]){var g1=goal("Grow my income stream",[]);g1.date=yr+"-06-30";st.areas[1].goals=[g1];}
+    if(st.areas[3]){var g3=goal("Read 12 books this year",[]);g3.date=yr+"-12-31";st.areas[3].goals=[g3];}
+    if(st.areas[4]) st.areas[4].goals=[goal("Plan one trip somewhere new",[])];
+    st.notes="Ideas: start a Sunday reset routine · try the pottery class · call Grandma more · save for a spring trip.\nSomeday/maybe: learn film photography, run a 10k.";
     var sc=[7,5,6,8,4,6];
     st.areas.forEach(function(a,i){a.score=sc[i%sc.length];});
     if(st.areas[0]&&st.areas[0].goals[0]){st.areas[0].goals[0].ms.forEach(function(m){m.done=true});st.areas[0].goals[0].done=true;}
@@ -525,6 +625,7 @@
       a.goals.forEach(function(g){if(!Array.isArray(g.ms))g.ms=[];});
     });
     if(!Array.isArray(s.vision)) s.vision=[];
+    if(typeof s.notes!=="string") s.notes="";
     if(!Array.isArray(s.checkins)) s.checkins=[];
     while(s.checkins.length<4) s.checkins.push({well:"",adjust:""});
     s.checkins=s.checkins.slice(0,4).map(function(q){q=q||{};return {well:q.well||"",adjust:q.adjust||""};});
@@ -552,8 +653,68 @@
     renderHabits();
     renderCheckins();
     renderVision();
+    renderYearMap();
+    $("notes").value=state.notes;
     updateStats();
     updateYears();
+  }
+
+  function renderYearMap(){
+    var box=$("yearMap");if(!box)return;box.innerHTML="";
+    // collect goals with their area emoji
+    var dated=[[],[],[],[],[],[],[],[],[],[],[],[]], anytime=[], scheduled=0, doneCount=0, totalGoals=0;
+    state.areas.forEach(function(a){a.goals.forEach(function(g){
+      totalGoals++;
+      var gdone=!!g.done||(g.ms.length>0&&g.ms.every(function(m){return m.done}));
+      if(gdone)doneCount++;
+      var item={emoji:a.emoji,name:g.name||"Untitled goal",done:gdone};
+      var mi=(typeof g.date==="string"&&/^\d{4}-\d{2}/.test(g.date))?(parseInt(g.date.slice(5,7),10)-1):-1;
+      if(mi>=0&&mi<=11){dated[mi].push(item);scheduled++;}else{anytime.push(item);}
+    });});
+    // legend
+    var leg=document.createElement("div");leg.className="yag-legend";
+    leg.innerHTML='<span><b>'+totalGoals+'</b> goal'+(totalGoals!==1?'s':'')+' this year</span>'+
+      '<span><b>'+scheduled+'</b> scheduled</span>'+
+      '<span><b>'+anytime.length+'</b> anytime</span>'+
+      '<span><b>'+doneCount+'</b> achieved</span>';
+    box.appendChild(leg);
+    // 12-month grid
+    var grid=document.createElement("div");grid.className="yag-grid";
+    for(var m=0;m<12;m++){
+      var cell=document.createElement("div");cell.className="yag-m"+(dated[m].length?" on":"");
+      var mn=document.createElement("div");mn.className="yag-mn";
+      mn.innerHTML='<span>'+MF[m]+'</span>'+(dated[m].length?'<span class="cnt">'+dated[m].length+'</span>':'');
+      cell.appendChild(mn);
+      if(dated[m].length){
+        dated[m].forEach(function(it){
+          var c=document.createElement("div");c.className="yag-chip"+(it.done?" done":"");
+          c.innerHTML='<span class="ge">'+esc(it.emoji)+'</span><span class="gt">'+esc(it.name)+'</span>';
+          cell.appendChild(c);
+        });
+      }else{
+        var e=document.createElement("div");e.className="yag-empty";e.textContent="—";cell.appendChild(e);
+      }
+      grid.appendChild(cell);
+    }
+    box.appendChild(grid);
+    // anytime bucket
+    if(anytime.length){
+      var any=document.createElement("div");any.className="yag-any";
+      var h=document.createElement("div");h.className="yag-mn";h.innerHTML='<span>🗓 Anytime this year — no date yet</span>';
+      any.appendChild(h);
+      var chips=document.createElement("div");chips.className="chips";
+      anytime.forEach(function(it){
+        var c=document.createElement("div");c.className="yag-chip"+(it.done?" done":"");
+        c.innerHTML='<span class="ge">'+esc(it.emoji)+'</span><span class="gt">'+esc(it.name)+'</span>';
+        chips.appendChild(c);
+      });
+      any.appendChild(chips);box.appendChild(any);
+    }
+    if(!totalGoals){
+      var empty=document.createElement("div");empty.className="yag-empty";empty.style.opacity=".7";empty.style.padding="4px 2px";
+      empty.textContent="Add goals above and they'll appear here, mapped across your year.";
+      box.appendChild(empty);
+    }
   }
 
   function renderHabits(){
@@ -585,6 +746,16 @@
       var cntTd=document.createElement("td");cntTd.appendChild(cntEl);tr.appendChild(cntTd);
       tb.appendChild(tr);
     });
+    /* blank hand-fill rows — shown only when printing blank (▢ Print blank) */
+    for(var r=0;r<9;r++){
+      var trt=document.createElement("tr");trt.className="hrow-template";
+      var ntd=document.createElement("td");
+      var lc=document.createElement("div");lc.className="ht-name";
+      ntd.appendChild(lc);trt.appendChild(ntd);
+      for(var cc=0;cc<12;cc++){var ctd=document.createElement("td");var cb=document.createElement("div");cb.className="hcell ht-box";ctd.appendChild(cb);trt.appendChild(ctd);}
+      trt.appendChild(document.createElement("td"));
+      tb.appendChild(trt);
+    }
     tbl.appendChild(tb);box.appendChild(tbl);
   }
 
@@ -688,7 +859,8 @@
       sl.addEventListener("input",function(){
         a.score=parseInt(sl.value,10)||0;wv.textContent=a.score;drawRadar();save();
       });
-      row.appendChild(we);row.appendChild(wn);row.appendChild(sl);row.appendChild(wv);
+      var scale=document.createElement("span");scale.className="wscale";scale.textContent="1 2 3 4 5 6 7 8 9 10";
+      row.appendChild(we);row.appendChild(wn);row.appendChild(sl);row.appendChild(wv);row.appendChild(scale);
       sliders.appendChild(row);
     });
     g.appendChild(radar);g.appendChild(sliders);box.appendChild(g);
@@ -767,6 +939,10 @@
 
       var gwrap=document.createElement("div");gwrap.className="goals";
       a.goals.forEach(function(g){gwrap.appendChild(goalEl(a,g))});
+      // blank writing lines for print-blank mode (hidden on screen and in filled prints)
+      var tmpl=document.createElement("div");tmpl.className="goal-template";
+      for(var ti=0;ti<3;ti++){var gl=document.createElement("div");gl.className="gt-line";var gd=document.createElement("span");gd.className="gt-dot";gl.appendChild(gd);tmpl.appendChild(gl);}
+      gwrap.appendChild(tmpl);
       var ag=document.createElement("button");ag.className="add-goal";ag.textContent="＋ Add goal";
       ag.addEventListener("click",function(){a.goals.push(goal("",[]));save();renderAreas();updateStats();
         // focus new goal
@@ -795,7 +971,7 @@
 
     var main=document.createElement("div");main.className="goal-main";
     var name=document.createElement("input");name.className="goal-name";name.value=g.name;name.placeholder="What do you want to achieve?";
-    name.addEventListener("input",function(){g.name=name.value;save()});
+    name.addEventListener("input",function(){g.name=name.value;save();renderYearMap()});
     main.appendChild(name);
 
     var sub=document.createElement("div");sub.className="goal-sub";
@@ -803,8 +979,9 @@
     why.addEventListener("input",function(){g.why=why.value;save()});
     var date=document.createElement("label");date.className="goal-date";date.innerHTML="🎯 ";
     var di=document.createElement("input");di.type="date";di.value=g.date;
-    di.addEventListener("input",function(){g.date=di.value;save()});
+    di.addEventListener("input",function(){g.date=di.value;save();renderYearMap()});
     date.appendChild(di);
+    var dp=document.createElement("span");dp.className="dprint";dp.textContent=g.date||"";date.appendChild(dp);
     var del=document.createElement("button");del.className="goal-del";del.innerHTML="×";del.title="Delete goal";
     del.addEventListener("click",function(){a.goals=a.goals.filter(function(x){return x!==g});save();renderAreas();updateStats()});
     sub.appendChild(why);sub.appendChild(date);sub.appendChild(del);
@@ -878,6 +1055,7 @@
     $("statGoals").textContent=goals;$("statDone").textContent=done;$("statMs").textContent=ms;
     $("pctNum").textContent=pct+"%";
     var C=452;$("ringFill").style.strokeDashoffset=C-(C*pct/100);
+    renderYearMap();
   }
   function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 
@@ -885,6 +1063,7 @@
   $("year").addEventListener("input",function(e){state.year=e.target.value;save();updateYears()});
   $("woty").addEventListener("input",function(e){state.woty=e.target.value;save();updateYears()});
   $("intention").addEventListener("input",function(e){state.intention=e.target.value;save()});
+  $("notes").addEventListener("input",function(e){state.notes=e.target.value;save()});
 
   // ---------- toolbar ----------
   $("addArea").addEventListener("click",function(){
@@ -897,6 +1076,8 @@
     setTimeout(function(){var ins=$("habits").querySelectorAll(".hname-cell input");if(ins.length)ins[ins.length-1].focus();},30);
   });
   $("printBtn").addEventListener("click",function(){window.print()});
+  $("printBlankBtn").addEventListener("click",function(){document.documentElement.classList.add("blankprint");window.print();});
+  window.addEventListener("afterprint",function(){document.documentElement.classList.remove("blankprint");});
   $("exampleBtn").addEventListener("click",function(){
     if(confirm("Load an example plan you can edit? This replaces what's currently on the page (make a Backup first if unsure).")){
       state=defaultState();seedExample(state);save();render();window.scrollTo({top:0,behavior:"smooth"});
